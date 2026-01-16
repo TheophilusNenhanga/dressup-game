@@ -231,3 +231,45 @@ export function newInventory(): Array<Clothing> {
 		}
 	];
 }
+
+// Start Claude
+function calculateSynergies(avatar: Avatar): number {
+	const equippedPieces = [avatar.head, avatar.chest, avatar.legs].filter(
+		(piece): piece is Clothing & { synergy: boolean } => piece !== null
+	);
+
+	if (equippedPieces.length < 2) return 0;
+
+	const synergies = new Set<string>();
+
+	// Compare each pair of equipped clothing pieces
+	for (let i = 0; i < equippedPieces.length; i++) {
+		for (let j = i + 1; j < equippedPieces.length; j++) {
+			const piece1 = equippedPieces[i];
+			const piece2 = equippedPieces[j];
+
+			// Check for matching tags
+			for (const tag1 of piece1.tag) {
+				for (const tag2 of piece2.tag) {
+					if (tag1.type === tag2.type && tag1.value === tag2.value) {
+						// Create a unique key for this synergy
+						// Include piece positions to count blue-blue once per pair
+						const positions = [i, j].sort().join('-');
+						const synergyKey = `${tag1.type}:${tag1.value}:${positions}`;
+						synergies.add(synergyKey);
+						piece1.synergy = true;
+						piece2.synergy = true;
+					}
+				}
+			}
+		}
+	}
+	return synergies.size;
+}
+
+export function calculateSynergyBoost(avatar: Avatar): number {
+	const synergyCount = calculateSynergies(avatar);
+	const damageMultiplier = 1 + synergyCount * 0.05;
+	return damageMultiplier;
+}
+// End Claude

@@ -7,7 +7,8 @@
 		type Powerup,
 		powerups,
 		extraClothes,
-		newInventory
+		newInventory,
+		calculateSynergyBoost
 	} from '$lib/index';
 
 	let avatar = $state<Avatar>({
@@ -15,8 +16,8 @@
 		chest: null,
 		legs: null,
 		health: 100,
-		defenceStyle: 1,
-		attackStyle: 5
+		defenceStyle: 0,
+		attackStyle: 0
 	});
 
 	let mode = $state<'pre-encounter' | 'encounter' | 'post-encounter'>('pre-encounter');
@@ -41,10 +42,14 @@
 	let rewardClothes = $state<Array<Clothing>>([]);
 
 	let inventory = $state<Array<Clothing>>(newInventory());
+	let boost = $state<number>(1);
 
 	function recalculateStats() {
 		let totalDefence = 0;
 		let totalAttack = 0;
+
+		boost = calculateSynergyBoost(avatar);
+
 		if (avatar.head) {
 			totalDefence += avatar.head.defenceStyle;
 			totalAttack += avatar.head.attackStyle;
@@ -57,8 +62,9 @@
 			totalDefence += avatar.legs.defenceStyle;
 			totalAttack += avatar.legs.attackStyle;
 		}
-		avatar.defenceStyle = totalDefence;
-		avatar.attackStyle = totalAttack;
+
+		avatar.defenceStyle = Math.floor(totalDefence * boost);
+		avatar.attackStyle = Math.floor(totalAttack * boost);
 	}
 
 	function pickReward(item: Clothing) {
@@ -82,17 +88,17 @@
 			if (avatar.head) {
 				unequipItem(avatar.head);
 			}
-			avatar.head = item;
+			avatar.head = { ...item, synergy: false };
 		} else if (item.for === 'chest') {
 			if (avatar.chest) {
 				unequipItem(avatar.chest);
 			}
-			avatar.chest = item;
+			avatar.chest = { ...item, synergy: false };
 		} else if (item.for === 'legs') {
 			if (avatar.legs) {
 				unequipItem(avatar.legs);
 			}
-			avatar.legs = item;
+			avatar.legs = { ...item, synergy: false };
 		}
 		recalculateStats();
 	}
@@ -131,8 +137,8 @@
 		enemyDamage = 0;
 
 		enemy.health = 100;
-		enemy.defence = Math.floor(Math.random() * 10) + 15;
-		enemy.attack = Math.floor(Math.random() * 10) + 15;
+		enemy.defence = Math.floor(Math.random() * 15) + 15;
+		enemy.attack = Math.floor(Math.random() * 15) + 15;
 
 		avatar.health = 100;
 		avatar.defenceStyle = 1;
@@ -219,6 +225,11 @@
 		}
 		encounterPowerups = encounterPowerups.filter((p) => p !== powerup);
 	}
+
+	function roundTo(num: number, precision: number) {
+		const factor = Math.pow(10, precision);
+		return Math.round(num * factor) / factor;
+	}
 </script>
 
 {#snippet player()}
@@ -227,7 +238,11 @@
 		<div class="flex flex-col">
 			<p>Head</p>
 			{#if avatar.head}
-				<img class="h-12 w-12" src={avatar.head.sprite} alt="Head" />
+				<img
+					class="h-24 w-24 {avatar.head.synergy ? 'animate-rainbow-pulse border-2' : ''}"
+					src={avatar.head.sprite}
+					alt="Head"
+				/>
 			{:else}
 				<p>No clothing worn here.</p>
 			{/if}
@@ -235,7 +250,11 @@
 		<div class="flex flex-col">
 			<p>Chest</p>
 			{#if avatar.chest}
-				<img class="h-12 w-12" src={avatar.chest.sprite} alt="Chest" />
+				<img
+					class="h-24 w-24 {avatar.chest.synergy ? 'animate-rainbow-pulse border-2' : ''}"
+					src={avatar.chest.sprite}
+					alt="Chest"
+				/>
 			{:else}
 				<p>No clothing worn here.</p>
 			{/if}
@@ -243,7 +262,11 @@
 		<div class="flex flex-col">
 			<p>Legs</p>
 			{#if avatar.legs}
-				<img class="h-12 w-12" src={avatar.legs.sprite} alt="Legs" />
+				<img
+					class="h-24 w-24 {avatar.legs.synergy ? 'animate-rainbow-pulse border-2' : ''}"
+					src={avatar.legs.sprite}
+					alt="Legs"
+				/>
 			{:else}
 				<p>No clothing worn here.</p>
 			{/if}
@@ -359,6 +382,9 @@
 					{/each}
 				</div>
 			</div>
+			<div>
+				<p class="text-xl font-bold">Synergy Boost: {roundTo((boost - 1) * 100, 2)}%</p>
+			</div>
 			<button
 				onclick={toEncounterMode}
 				class="mt-2 ml-2 w-fit border px-3 py-1 text-xl font-semibold hover:shadow"
@@ -390,6 +416,7 @@
 							<img class="h-24 w-24" src={powerup.sprite} alt={powerup.name} />
 						</button>
 						<p>{powerup.name}</p>
+						<p>{powerup.value * 100}% {powerup.effectTo} boost</p>
 					</div>
 				{/each}
 			</div>
@@ -426,15 +453,26 @@
 						<p>Enemy damage: {enemyDamage}</p>
 					</div>
 
+					<div>
+						<p class="text-xl font-bold">Synergy Boost: {roundTo((boost - 1) * 100, 2)}%</p>
+					</div>
+
 					<div class="text-muted-foreground space-y-4">
 						<div>
 							<p>Damage formula:</p>
-							<p>((100 - target.defence) / 100) * (avatar.attack * yourMultiplier)</p>
+							<p>
+								((100 - target.defence) / 100) * (avatar.attack * synergy boost * yourMultiplier)
+							</p>
 						</div>
 						<div>
 							<p>Powerup Effect:</p>
 							<p>avatar.[health|attack|defence] *= 1 + powerup.value;</p>
 							<small>powerup values are between 0 and 1</small>
+						</div>
+						<div>
+							<p>Synergy Boosts</p>
+							<p>Each pair of tags grant a synergy boost.</p>
+							<p>Each synergy boost gives a 5% boost to attack and defence</p>
 						</div>
 					</div>
 				</div>
@@ -504,4 +542,35 @@
 	span {
 		font-weight: bold;
 	}
+
+	/* Claude Start */
+	@keyframes rainbow-pulse {
+		0%,
+		100% {
+			border-color: red;
+		}
+		14% {
+			border-color: orange;
+		}
+		28% {
+			border-color: yellow;
+		}
+		42% {
+			border-color: green;
+		}
+		57% {
+			border-color: blue;
+		}
+		71% {
+			border-color: indigo;
+		}
+		85% {
+			border-color: violet;
+		}
+	}
+
+	.animate-rainbow-pulse {
+		animation: rainbow-pulse 2s infinite;
+	}
+	/* Claude End */
 </style>
