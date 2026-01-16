@@ -109,8 +109,8 @@
 	let enemy = $state<Enemy>({
 		sprite:
 			'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK3KPjPwcINGG6hMNDOANfvmTgIAQ1vrOTnw&s',
-		defence: 15,
-		attack: 15,
+		defence: 8,
+		attack: 8,
 		health: 100
 	});
 
@@ -296,6 +296,13 @@
 								defence Style: <span>{item.defenceStyle}</span>
 							</p>
 							<p class="flex justify-between">attack style: <span>{item.attackStyle}</span></p>
+							<div class="mt-1 flex flex-wrap gap-1">
+								{#each item.tag as tag, index (index)}
+									<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-normal">
+										{tag.type}: {tag.value}
+									</span>
+								{/each}
+							</div>
 						</button>
 					{/each}
 				</div>
@@ -306,13 +313,20 @@
 					{#each inventory.filter((item) => item.for === 'chest') as item, index (index)}
 						<button
 							onclick={() => equipItem(item)}
-							class="w-fit border border-black p-2 shadow hover:shadow-md"
+							class="w-fit border border-black p-2 text-left shadow hover:shadow-md"
 						>
 							<img class="h-12 w-12" src={item.sprite} alt={item.for} />
 							<p class="flex justify-between gap-4">
 								defence Style: <span>{item.defenceStyle}</span>
 							</p>
 							<p class="flex justify-between">attack style: <span>{item.attackStyle}</span></p>
+							<div class="mt-1 flex flex-wrap gap-1">
+								{#each item.tag as tag, index (index)}
+									<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-normal">
+										{tag.type}: {tag.value}
+									</span>
+								{/each}
+							</div>
 						</button>
 					{/each}
 				</div>
@@ -323,13 +337,20 @@
 					{#each inventory.filter((item) => item.for === 'legs') as item, index (index)}
 						<button
 							onclick={() => equipItem(item)}
-							class="w-fit border border-black p-2 shadow hover:shadow-md"
+							class="w-fit border border-black p-2 text-left shadow hover:shadow-md"
 						>
 							<img class="h-12 w-12" src={item.sprite} alt={item.for} />
 							<p class="flex justify-between gap-4">
 								defence Style: <span>{item.defenceStyle}</span>
 							</p>
 							<p class="flex justify-between">attack style: <span>{item.attackStyle}</span></p>
+							<div class="mt-1 flex flex-wrap gap-1">
+								{#each item.tag as tag, index (index)}
+									<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-normal">
+										{tag.type}: {tag.value}
+									</span>
+								{/each}
+							</div>
 						</button>
 					{/each}
 				</div>
@@ -424,14 +445,25 @@
 					<div>
 						{#if rewardClothes.length !== 0}
 							<h3 class="text-xl font-bold">Pick a Reward</h3>
-							{#each rewardClothes as reward (reward.id)}
+							{#each rewardClothes as item, index (index)}
 								<button
 									onclick={() => {
-										pickReward(reward);
+										pickReward(item);
 									}}
-									class=" w-fit border border-black px-3 py-1 shadow hover:shadow-md"
+									class="w-fit border border-black p-2 text-left shadow hover:shadow-md"
 								>
-									<img src={reward.sprite} alt="a piece of clothing" class="h-24 w-24" />
+									<img class="h-12 w-12" src={item.sprite} alt={item.for} />
+									<p class="flex justify-between gap-4">
+										defence Style: <span>{item.defenceStyle}</span>
+									</p>
+									<p class="flex justify-between">attack style: <span>{item.attackStyle}</span></p>
+									<div class="mt-1 flex flex-wrap gap-1">
+										{#each item.tag as tag, index (index)}
+											<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-normal">
+												{tag.type}: {tag.value}
+											</span>
+										{/each}
+									</div>
 								</button>
 							{/each}
 						{:else}
