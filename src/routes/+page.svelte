@@ -103,6 +103,7 @@
 		recalculateStats();
 	}
 
+	let grandTotal = $state(0);
 	let endMsg = $state('');
 	let rollDieVid = $state(false);
 	let yourMultiplier = $state(1);
@@ -126,6 +127,7 @@
 	function resetGame(): void {
 		if (!win) {
 			inventory = newInventory();
+			grandTotal = 0;
 		}
 		endMsg = '';
 		rollDieVid = false;
@@ -137,8 +139,8 @@
 		enemyDamage = 0;
 
 		enemy.health = 100;
-		enemy.defence = Math.floor(Math.random() * 15) + 15;
-		enemy.attack = Math.floor(Math.random() * 15) + 15;
+		enemy.defence = Math.floor(Math.random() * 15) + 5;
+		enemy.attack = Math.floor(Math.random() * 15) + 5;
 
 		avatar.health = 100;
 		avatar.defenceStyle = 1;
@@ -196,6 +198,7 @@
 			mode = 'post-encounter';
 		}
 		turnNumber++;
+		grandTotal += encounterDamage;
 	}
 
 	function toEncounterMode(): void {
@@ -482,7 +485,7 @@
 		<div class="flex flex-col gap-4">
 			<p class="text-2xl font-bold">
 				You got <span
-					class="animate-pulse bg-linear-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-6xl font-extrabold text-transparent"
+					class="animate-pulse bg-linear-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-2xl font-extrabold text-transparent"
 					>{encounterDamage}</span
 				> Style Points!
 			</p>
@@ -521,6 +524,12 @@
 				</div>
 			{:else}
 				<p>{endMsg}</p>
+				<p>Grand Total Style Points:</p>
+				<p
+					class="animate-pulse bg-linear-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-7xl font-extrabold text-transparent"
+				>
+					{grandTotal}sp
+				</p>
 			{/if}
 
 			<button
