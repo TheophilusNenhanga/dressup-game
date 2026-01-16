@@ -115,6 +115,7 @@
 	});
 
 	let turnNumber = $state(0);
+	let encounterDamage = $state(0);
 
 	function resetGame(): void {
 		if (!win) {
@@ -170,6 +171,8 @@
 		yourDamage = Math.floor(yourDamage);
 		enemyDamage = Math.floor(enemyDamage);
 
+		encounterDamage += yourDamage;
+
 		target.health -= yourDamage;
 		if (target.health <= 0) {
 			target.health = 0;
@@ -190,6 +193,7 @@
 	}
 
 	function toEncounterMode(): void {
+		encounterDamage = 0;
 		encounterPowerups = [];
 		mode = 'encounter';
 		shuffle(powerups);
@@ -275,17 +279,17 @@
 {/snippet}
 
 <div class="relative m-4 flex flex-col space-y-4">
-	<div class="absolute top-0 right-0">
+	<div class="">
 		<p class="text-muted-foreground font-serif text-5xl font-extrabold">{mode}</p>
 	</div>
 	{#if mode === 'pre-encounter'}
 		{@render player()}
 
 		<div class="flex flex-col gap-2">
-			<h2 class="text-2xl font-semibold">Clothes Inventory</h2>
+			<h2 class="text-2xl font-bold">Clothes Inventory</h2>
 			<div class="flex flex-col gap-2">
-				<p>Head armour</p>
-				<div class="flex gap-2">
+				<h3 class="text-xl font-semibold">Head Clothing</h3>
+				<div class="flex flex-wrap gap-2">
 					{#each inventory.filter((item) => item.for === 'head') as item, index (index)}
 						<button
 							onclick={() => equipItem(item)}
@@ -308,8 +312,8 @@
 				</div>
 			</div>
 			<div class="flex flex-col gap-2">
-				<p>Chest armour</p>
-				<div class="flex gap-2">
+				<h3 class="text-xl font-semibold">Chest Clothing</h3>
+				<div class="flex flex-wrap gap-2">
 					{#each inventory.filter((item) => item.for === 'chest') as item, index (index)}
 						<button
 							onclick={() => equipItem(item)}
@@ -332,8 +336,8 @@
 				</div>
 			</div>
 			<div class="flex flex-col gap-2">
-				<p>Legs armour</p>
-				<div class="flex gap-2">
+				<h3 class="text-xl font-semibold">Legs Clothing</h3>
+				<div class="flex flex-wrap gap-2">
 					{#each inventory.filter((item) => item.for === 'legs') as item, index (index)}
 						<button
 							onclick={() => equipItem(item)}
@@ -438,8 +442,14 @@
 		</div>
 	{:else if mode === 'post-encounter'}
 		<div class="flex flex-col gap-4">
+			<p class="text-2xl font-bold">
+				You got <span
+					class="animate-pulse bg-linear-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-6xl font-extrabold text-transparent"
+					>{encounterDamage}</span
+				> Style Points!
+			</p>
 			{#if win}
-				<p>{endMsg}</p>
+				<p class="text-xl font-semibold">{endMsg}</p>
 
 				<div>
 					<div>

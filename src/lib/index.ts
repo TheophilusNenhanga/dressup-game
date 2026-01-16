@@ -14,9 +14,9 @@ export type Clothing = {
 };
 
 export type Avatar = {
-	head: Clothing | null;
-	chest: Clothing | null;
-	legs: Clothing | null;
+	head: (Clothing & { synergy: boolean }) | null;
+	chest: (Clothing & { synergy: boolean }) | null;
+	legs: (Clothing & { synergy: boolean }) | null;
 
 	health: number;
 	defenceStyle: number;
