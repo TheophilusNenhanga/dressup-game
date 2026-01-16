@@ -242,7 +242,7 @@
 			<p>Head</p>
 			{#if avatar.head}
 				<img
-					class="h-24 w-24 {avatar.head.synergy ? 'animate-rainbow-pulse border-2' : ''}"
+					class="h-24 w-24 {avatar.head.synergy ? 'animate-rainbow-pulse border-4' : ''}"
 					src={avatar.head.sprite}
 					alt="Head"
 				/>
@@ -254,7 +254,7 @@
 			<p>Chest</p>
 			{#if avatar.chest}
 				<img
-					class="h-24 w-24 {avatar.chest.synergy ? 'animate-rainbow-pulse border-2' : ''}"
+					class="h-24 w-24 {avatar.chest.synergy ? 'animate-rainbow-pulse border-4' : ''}"
 					src={avatar.chest.sprite}
 					alt="Chest"
 				/>
@@ -266,7 +266,7 @@
 			<p>Legs</p>
 			{#if avatar.legs}
 				<img
-					class="h-24 w-24 {avatar.legs.synergy ? 'animate-rainbow-pulse border-2' : ''}"
+					class="h-24 w-24 {avatar.legs.synergy ? 'animate-rainbow-pulse border-4' : ''}"
 					src={avatar.legs.sprite}
 					alt="Legs"
 				/>
@@ -431,7 +431,7 @@
 					class=" w-fit border border-black px-3 py-1 shadow hover:shadow-md">Attack</button
 				>
 				{#if rollDieVid === true}
-					<div class="flex flex-col items-center justify-center">
+					<div class="flex w-fit flex-col items-center justify-center">
 						<p>Rolling die...</p>
 						<img
 							src="https://i.pinimg.com/originals/75/09/82/750982c4ccc4737e643207f54c40170a.gif"
@@ -580,6 +580,7 @@
 
 	.animate-rainbow-pulse {
 		animation: rainbow-pulse 2s infinite;
+		border-radius: 1rem;
 	}
 	/* Claude End */
 </style>
