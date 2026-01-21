@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {
-		type Tag,
 		type Clothing,
 		type Avatar,
 		type Enemy,
@@ -10,6 +9,13 @@
 		newInventory,
 		calculateSynergyBoost
 	} from '$lib/index';
+	import enemy1 from '$lib/assets/enemy-draft1.jpg';
+	import enemy2 from '$lib/assets/enemy-draft2.jpg';
+	import enemy3 from '$lib/assets/enemy-draft3.jpg';
+	import enemy5 from '$lib/assets/enemy-draft5.jpg';
+	import enemy6 from '$lib/assets/enemy-draft6.jpg';
+
+	import { slide } from 'svelte/transition';
 
 	let avatar = $state<Avatar>({
 		head: null,
@@ -105,17 +111,15 @@
 
 	let grandTotal = $state(0);
 	let endMsg = $state('');
-	let rollDieVid = $state(false);
-	let yourMultiplier = $state(1);
-	let enemyMultiplier = $state(1);
-	let yourDie = $state(0);
-	let enemyDie = $state(0);
 	let yourDamage = $state(0);
 	let enemyDamage = $state(0);
 
+	let enemySprites = [enemy1, enemy2, enemy3, enemy5, enemy6];
+	let enemySpriteIndex = 0;
+	let enemySprite = enemySprites[enemySpriteIndex];
+
 	let enemy = $state<Enemy>({
-		sprite:
-			'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK3KPjPwcINGG6hMNDOANfvmTgIAQ1vrOTnw&s',
+		sprite: enemySprite,
 		defence: 8,
 		attack: 8,
 		health: 100
@@ -130,13 +134,11 @@
 			grandTotal = 0;
 		}
 		endMsg = '';
-		rollDieVid = false;
-		yourMultiplier = 1;
-		enemyMultiplier = 1;
-		yourDie = 0;
-		enemyDie = 0;
 		yourDamage = 0;
 		enemyDamage = 0;
+
+		enemySpriteIndex = Math.floor(Math.random() * enemySprites.length);
+		enemy.sprite = enemySprites[enemySpriteIndex];
 
 		enemy.health = 100;
 		enemy.defence = Math.floor(Math.random() * 15) + 5;
@@ -163,18 +165,8 @@
 	}
 
 	async function attack(avatar: Avatar, target: Enemy) {
-		rollDieVid = true;
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		rollDieVid = false;
-
-		yourDie = Math.ceil(Math.random() * 6);
-		enemyDie = Math.ceil(Math.random() * 6);
-
-		yourMultiplier = 1 + yourDie / 10;
-		enemyMultiplier = 1 + enemyDie / 10;
-
-		yourDamage = ((100 - target.defence) / 100) * (avatar.attackStyle * yourMultiplier);
-		enemyDamage = ((100 - avatar.defenceStyle) / 100) * (target.attack * enemyMultiplier);
+		yourDamage = ((100 - target.defence) / 100) * avatar.attackStyle;
+		enemyDamage = ((100 - avatar.defenceStyle) / 100) * target.attack;
 
 		yourDamage = Math.floor(yourDamage);
 		enemyDamage = Math.floor(enemyDamage);
@@ -233,55 +225,66 @@
 		const factor = Math.pow(10, precision);
 		return Math.round(num * factor) / factor;
 	}
+
+	const maxHealth = 100;
 </script>
 
+{#snippet healthBar(currentHealth: number, maxHealth: number)}
+	<div class="flex w-full flex-col gap-2 rounded-md p-2">
+		<h3 class="text-xl font-bold">Health</h3>
+		<div class="h-6 w-96 border-4 border-black bg-gray-200">
+			<div class="h-full bg-red-500" style="width: {(currentHealth / maxHealth) * 100}%"></div>
+		</div>
+	</div>
+{/snippet}
+
 {#snippet player()}
-	<section class="flex w-fit flex-col gap-2 rounded-md border p-2">
-		<h3 class="text-xl font-bold">Player</h3>
-		<div class="flex flex-col">
-			<p>Head</p>
+	<section class="flex w-full flex-col gap-8 p-2">
+		<h3 class="text-5xl font-bold">Player</h3>
+		<div class="flex flex-col gap-4">
+			{@render healthBar(avatar.health, maxHealth)}
+			<p class="text-2xl">Head</p>
 			{#if avatar.head}
 				<img
-					class="h-24 w-24 {avatar.head.synergy ? 'animate-rainbow-pulse border-4' : ''}"
+					class="h-36 w-36 {avatar.head.synergy ? 'animate-rainbow-pulse border-4' : ''}"
 					src={avatar.head.sprite}
 					alt="Head"
 				/>
 			{:else}
-				<p>No clothing worn here.</p>
+				<p class="text-xl">No clothing worn here.</p>
 			{/if}
 		</div>
-		<div class="flex flex-col">
-			<p>Chest</p>
+		<div class="flex flex-col gap-4">
+			<p class="text-2xl">Chest</p>
 			{#if avatar.chest}
 				<img
-					class="h-24 w-24 {avatar.chest.synergy ? 'animate-rainbow-pulse border-4' : ''}"
+					class="h-36 w-36 {avatar.chest.synergy ? 'animate-rainbow-pulse border-4' : ''}"
 					src={avatar.chest.sprite}
 					alt="Chest"
 				/>
 			{:else}
-				<p>No clothing worn here.</p>
+				<p class="text-xl">No clothing worn here.</p>
 			{/if}
 		</div>
-		<div class="flex flex-col">
-			<p>Legs</p>
+		<div class="flex flex-col gap-4">
+			<p class="text-2xl">Legs</p>
 			{#if avatar.legs}
 				<img
-					class="h-24 w-24 {avatar.legs.synergy ? 'animate-rainbow-pulse border-4' : ''}"
+					class="h-36 w-36 {avatar.legs.synergy ? 'animate-rainbow-pulse border-4' : ''}"
 					src={avatar.legs.sprite}
 					alt="Legs"
 				/>
 			{:else}
-				<p>No clothing worn here.</p>
+				<p class="text-xl">No clothing worn here.</p>
 			{/if}
 		</div>
 
 		<div class="w-full border-t">
 			<div>
-				<p class="flex justify-between gap-4 font-bold">Health: <span>{avatar.health}</span></p>
-				<p class="flex justify-between gap-4 font-bold">
+				<p class="flex justify-between gap-4 text-2xl font-bold">
 					Defence Style: <span>{avatar.defenceStyle}</span>
 				</p>
-				<p class="flex justify-between gap-4 font-bold">
+				<p class="flex justify-between gap-4 text-2xl font-bold">
 					Attack Style: <span>{avatar.attackStyle}</span>
 				</p>
 			</div>
@@ -290,243 +293,171 @@
 {/snippet}
 
 {#snippet enemyMarkup()}
-	<section class="flex flex-col gap-2 rounded-md border p-2">
-		<h3 class="text-xl font-bold">Enemy</h3>
-		<img class="h-24 w-24" src={enemy.sprite} alt="enemy sprite" />
-		<div class="w-fit">
-			<h2>Enemy Stats</h2>
+	<section class="flex flex-col gap-2 rounded-md p-2">
+		<h3 class="text-4xl font-bold">Enemy</h3>
+		{@render healthBar(enemy.health, maxHealth)}
+		<img src={enemy.sprite} alt="enemy sprite" />
+		<div>
+			<h2 class="text-3xl">Enemy Stats</h2>
 			<div>
-				<p class="font-bold">health: {enemy.health}</p>
-				<p class="font-bold">defence: {enemy.defence}</p>
-				<p class="font-bold">attack: {enemy.attack}</p>
+				<p class="text-2xl font-bold">defence: {enemy.defence}</p>
+				<p class="text-2xl font-bold">attack: {enemy.attack}</p>
 			</div>
 		</div>
 	</section>
 {/snippet}
 
-<div class="relative m-4 flex flex-col space-y-4">
-	<div class="">
-		<p class="text-muted-foreground font-serif text-5xl font-extrabold">{mode}</p>
-	</div>
-	{#if mode === 'pre-encounter'}
-		{@render player()}
+{#snippet clothingPiece(item: Clothing)}
+	<button
+		onclick={() => equipItem(item)}
+		class="w-fit border border-gray-100 p-2 text-left shadow-md hover:scale-105 hover:border-gray-300 hover:shadow-lg"
+	>
+		<img class="h-24 w-24" src={item.sprite} alt={item.for} />
+		<p class="flex justify-between gap-4">
+			defence Style: <span>{item.defenceStyle}</span>
+		</p>
+		<p class="flex justify-between">attack style: <span>{item.attackStyle}</span></p>
+		<div class="mt-1 flex flex-wrap gap-1">
+			{#each item.tag as tag, index (index)}
+				<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-normal">
+					{tag.type}: {tag.value}
+				</span>
+			{/each}
+		</div>
+	</button>
+{/snippet}
 
-		<div class="flex flex-col gap-2">
-			<h2 class="text-2xl font-bold">Clothes Inventory</h2>
-			<div class="flex flex-col gap-2">
-				<h3 class="text-xl font-semibold">Head Clothing</h3>
-				<div class="flex flex-wrap gap-2">
-					{#each inventory.filter((item) => item.for === 'head') as item, index (index)}
-						<button
-							onclick={() => equipItem(item)}
-							class="w-fit border border-black p-2 text-left shadow hover:shadow-md"
-						>
-							<img class="h-12 w-12" src={item.sprite} alt={item.for} />
-							<p class="flex justify-between gap-4">
-								defence Style: <span>{item.defenceStyle}</span>
-							</p>
-							<p class="flex justify-between">attack style: <span>{item.attackStyle}</span></p>
-							<div class="mt-1 flex flex-wrap gap-1">
-								{#each item.tag as tag, index (index)}
-									<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-normal">
-										{tag.type}: {tag.value}
-									</span>
-								{/each}
-							</div>
-						</button>
-					{/each}
+<div class="relative m-4 flex flex-col space-y-4 px-8">
+	<p class="border-b pb-6 text-center font-mono text-5xl font-extrabold">{mode}</p>
+	{#if mode === 'pre-encounter'}
+		<div class="flex justify-around gap-8" transition:slide>
+			{@render player()}
+			<div class="flex w-full flex-col gap-2">
+				<h2 class="text-5xl font-bold">Clothes Inventory</h2>
+				<div class="flex flex-col gap-2">
+					<h3 class="text-xl font-semibold">Head Clothing</h3>
+					<div class="flex flex-wrap gap-4">
+						{#each inventory.filter((item) => item.for === 'head') as item, index (index)}
+							{@render clothingPiece(item)}
+						{/each}
+					</div>
 				</div>
-			</div>
-			<div class="flex flex-col gap-2">
-				<h3 class="text-xl font-semibold">Chest Clothing</h3>
-				<div class="flex flex-wrap gap-2">
-					{#each inventory.filter((item) => item.for === 'chest') as item, index (index)}
-						<button
-							onclick={() => equipItem(item)}
-							class="w-fit border border-black p-2 text-left shadow hover:shadow-md"
-						>
-							<img class="h-12 w-12" src={item.sprite} alt={item.for} />
-							<p class="flex justify-between gap-4">
-								defence Style: <span>{item.defenceStyle}</span>
-							</p>
-							<p class="flex justify-between">attack style: <span>{item.attackStyle}</span></p>
-							<div class="mt-1 flex flex-wrap gap-1">
-								{#each item.tag as tag, index (index)}
-									<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-normal">
-										{tag.type}: {tag.value}
-									</span>
-								{/each}
-							</div>
-						</button>
-					{/each}
+				<div class="flex flex-col gap-2">
+					<h3 class="text-xl font-semibold">Chest Clothing</h3>
+					<div class="flex flex-wrap gap-2">
+						{#each inventory.filter((item) => item.for === 'chest') as item, index (index)}
+							{@render clothingPiece(item)}
+						{/each}
+					</div>
 				</div>
-			</div>
-			<div class="flex flex-col gap-2">
-				<h3 class="text-xl font-semibold">Legs Clothing</h3>
-				<div class="flex flex-wrap gap-2">
-					{#each inventory.filter((item) => item.for === 'legs') as item, index (index)}
-						<button
-							onclick={() => equipItem(item)}
-							class="w-fit border border-black p-2 text-left shadow hover:shadow-md"
-						>
-							<img class="h-12 w-12" src={item.sprite} alt={item.for} />
-							<p class="flex justify-between gap-4">
-								defence Style: <span>{item.defenceStyle}</span>
-							</p>
-							<p class="flex justify-between">attack style: <span>{item.attackStyle}</span></p>
-							<div class="mt-1 flex flex-wrap gap-1">
-								{#each item.tag as tag, index (index)}
-									<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-normal">
-										{tag.type}: {tag.value}
-									</span>
-								{/each}
-							</div>
-						</button>
-					{/each}
+				<div class="flex flex-col gap-2">
+					<h3 class="text-xl font-semibold">Legs Clothing</h3>
+					<div class="flex flex-wrap gap-2">
+						{#each inventory.filter((item) => item.for === 'legs') as item, index (index)}
+							{@render clothingPiece(item)}
+						{/each}
+					</div>
 				</div>
+				<div>
+					<p class="text-xl font-bold">Synergy Boost: {roundTo((boost - 1) * 100, 2)}%</p>
+				</div>
+				<button
+					onclick={toEncounterMode}
+					class="rainbow-pulse mt-2 ml-2 w-fit border px-3 py-1 text-2xl font-bold hover:scale-105 hover:shadow-lg active:scale-90"
+					>Battle with fashion!</button
+				>
 			</div>
-			<div>
-				<p class="text-xl font-bold">Synergy Boost: {roundTo((boost - 1) * 100, 2)}%</p>
-			</div>
-			<button
-				onclick={toEncounterMode}
-				class="mt-2 ml-2 w-fit border px-3 py-1 text-xl font-semibold hover:shadow"
-				>Ready to battle with style!</button
-			>
 		</div>
 	{:else if mode === 'encounter'}
-		<div class="flex flex-col space-y-6">
-			<div class="flex items-center gap-6">
-				{@render player()}
-				<p class="text-5xl font-bold">VS</p>
-				{@render enemyMarkup()}
-			</div>
+		<div class="relative flex flex-col gap-8 space-y-6" transition:slide>
+			<!-- <div
+				class="absolute inset-0 top-0 right-0 bottom-0 left-0 -z-10"
+				style="background-image:url({Background}); background-size: cover; background-position: center;"
+			></div> -->
+			<div class="flex items-center justify-between gap-6 px-8">
+				<div>
+					{@render player()}
+					<div class="flex flex-col gap-4">
+						<h3 class="my-2 text-2xl font-bold">Powerups</h3>
+						<div class="flex gap-4">
+							{#each encounterPowerups as powerup, index (index)}
+								<div class="flex flex-col items-center">
+									<button
+										onclick={() => usePowerup(powerup)}
+										class=" overflow-hidden rounded-full border-2 shadow hover:shadow-md {powerup.rarity ===
+										'common'
+											? 'border-green-500'
+											: powerup.rarity === 'uncommon'
+												? 'border-blue-500'
+												: powerup.rarity === 'rare'
+													? 'border-purple-500'
+													: 'border-gray-500'}"
+									>
+										<img class="h-24 w-24" src={powerup.sprite} alt={powerup.name} />
+									</button>
+									<p class="text-xl">{powerup.name}</p>
+									<p class="text-xl">{powerup.value * 100}% {powerup.effectTo} boost</p>
+								</div>
+							{/each}
+						</div>
+					</div>
 
-			<div class="flex gap-4">
-				{#each encounterPowerups as powerup, index (index)}
-					<div class="flex flex-col items-center">
+					<div class="flex flex-col gap-4">
+						<p>Turn: {turnNumber}</p>
 						<button
-							onclick={() => usePowerup(powerup)}
-							class=" overflow-hidden rounded-full border-2 shadow hover:shadow-md {powerup.rarity ===
-							'common'
-								? 'border-green-500'
-								: powerup.rarity === 'uncommon'
-									? 'border-blue-500'
-									: powerup.rarity === 'rare'
-										? 'border-purple-500'
-										: 'border-gray-500'}"
+							onclick={() => attack(avatar, enemy)}
+							class="w-fit border px-3 py-1 text-3xl shadow hover:shadow-md">Attack</button
 						>
-							<img class="h-24 w-24" src={powerup.sprite} alt={powerup.name} />
-						</button>
-						<p>{powerup.name}</p>
-						<p>{powerup.value * 100}% {powerup.effectTo} boost</p>
-					</div>
-				{/each}
-			</div>
-
-			<div class="flex flex-col gap-4">
-				<p>Turn: {turnNumber}</p>
-				<button
-					onclick={() => attack(avatar, enemy)}
-					class=" w-fit border border-black px-3 py-1 shadow hover:shadow-md">Attack</button
-				>
-				{#if rollDieVid === true}
-					<div class="flex w-fit flex-col items-center justify-center">
-						<p>Rolling die...</p>
-						<img
-							src="https://i.pinimg.com/originals/75/09/82/750982c4ccc4737e643207f54c40170a.gif"
-							alt="Rolling die"
-							class="h-24 w-24"
-						/>
-					</div>
-				{/if}
-
-				<div class="flex flex-col gap-4">
-					<div>
-						<p>Your roll: {yourDie}</p>
-						<p>Enemy roll: {enemyDie}</p>
-					</div>
-
-					<div>
-						<p>Your multiplier: {yourMultiplier}</p>
-						<p>Enemy multiplier: {enemyMultiplier}</p>
-					</div>
-					<div>
-						<p>Your damage: {yourDamage}</p>
-						<p>Enemy damage: {enemyDamage}</p>
-					</div>
-
-					<div>
-						<p class="text-xl font-bold">Synergy Boost: {roundTo((boost - 1) * 100, 2)}%</p>
-					</div>
-
-					<div class="text-muted-foreground space-y-4">
-						<div>
-							<p>Damage formula:</p>
-							<p>
-								((100 - target.defence) / 100) * (avatar.attack * synergy boost * yourMultiplier)
-							</p>
-						</div>
-						<div>
-							<p>Powerup Effect:</p>
-							<p>avatar.[health|attack|defence] *= 1 + powerup.value;</p>
-							<small>powerup values are between 0 and 1</small>
-						</div>
-						<div>
-							<p>Synergy Boosts</p>
-							<p>Each pair of tags grant a synergy boost.</p>
-							<p>Each synergy boost gives a 5% boost to attack and defence</p>
-						</div>
 					</div>
 				</div>
+				<p class="text-9xl font-bold">VS</p>
+				{@render enemyMarkup()}
 			</div>
 		</div>
 	{:else if mode === 'post-encounter'}
-		<div class="flex flex-col gap-4">
-			<p class="text-2xl font-bold">
+		<div class="flex flex-col items-center gap-4" transition:slide>
+			<p class="text-6xl font-bold">
 				You got <span
-					class="animate-pulse bg-linear-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-2xl font-extrabold text-transparent"
+					class="animate-pulse bg-linear-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-9xl font-extrabold text-transparent"
 					>{encounterDamage}</span
 				> Style Points!
 			</p>
 			{#if win}
-				<p class="text-xl font-semibold">{endMsg}</p>
+				<p class="text-6xl font-semibold">{endMsg}</p>
 
-				<div>
-					<div>
-						{#if rewardClothes.length !== 0}
-							<h3 class="text-xl font-bold">Pick a Reward</h3>
-							{#each rewardClothes as item, index (index)}
-								<button
-									onclick={() => {
-										pickReward(item);
-									}}
-									class="w-fit border border-black p-2 text-left shadow hover:shadow-md"
-								>
-									<img class="h-12 w-12" src={item.sprite} alt={item.for} />
-									<p class="flex justify-between gap-4">
-										defence Style: <span>{item.defenceStyle}</span>
-									</p>
-									<p class="flex justify-between">attack style: <span>{item.attackStyle}</span></p>
-									<div class="mt-1 flex flex-wrap gap-1">
-										{#each item.tag as tag, index (index)}
-											<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-normal">
-												{tag.type}: {tag.value}
-											</span>
-										{/each}
-									</div>
-								</button>
-							{/each}
-						{:else}
-							<p>No rewards available</p>
-						{/if}
+				{#if rewardClothes.length !== 0}
+					<h3 class="text-xl font-bold">Pick a Reward</h3>
+					<div class="flex gap-6">
+						{#each rewardClothes as item, index (index)}
+							<button
+								onclick={() => {
+									pickReward(item);
+								}}
+								class="w-fit border border-black p-2 text-left shadow hover:shadow-md"
+							>
+								<img class="h-60 w-60" src={item.sprite} alt={item.for} />
+								<p class="flex justify-between gap-4">
+									defence Style: <span>{item.defenceStyle}</span>
+								</p>
+								<p class="flex justify-between">attack style: <span>{item.attackStyle}</span></p>
+								<div class="mt-1 flex flex-wrap gap-1">
+									{#each item.tag as tag, index (index)}
+										<span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-normal">
+											{tag.type}: {tag.value}
+										</span>
+									{/each}
+								</div>
+							</button>
+						{/each}
 					</div>
-				</div>
+				{:else}
+					<p>No rewards available</p>
+				{/if}
 			{:else}
-				<p>{endMsg}</p>
-				<p>Grand Total Style Points:</p>
+				<p class="text-4xl">{endMsg}</p>
+				<p class="text-5xl">Grand Total Style Points:</p>
 				<p
-					class="animate-pulse bg-linear-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-7xl font-extrabold text-transparent"
+					class="animate-pulse bg-linear-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-9xl font-extrabold text-transparent"
 				>
 					{grandTotal}sp
 				</p>
@@ -536,7 +467,8 @@
 				onclick={() => {
 					resetGame();
 				}}
-				class="w-fit border border-black px-3 py-1 shadow hover:shadow-md">Play Again</button
+				class="w-fit border border-black px-3 py-1 text-5xl shadow hover:shadow-md"
+				>Play Again</button
 			>
 		</div>
 	{/if}
@@ -545,27 +477,26 @@
 <style>
 	button {
 		@apply transition-all duration-150 active:scale-90;
-		border-radius: 1rem;
+		border-radius: 0.5rem;
 		cursor: pointer;
 	}
 	span {
 		font-weight: bold;
 	}
 
-	/* Claude Start */
 	@keyframes rainbow-pulse {
 		0%,
 		100% {
 			border-color: red;
 		}
 		14% {
-			border-color: orange;
+			border-color: lightsalmon;
 		}
 		28% {
 			border-color: yellow;
 		}
 		42% {
-			border-color: green;
+			border-color: pink;
 		}
 		57% {
 			border-color: blue;
@@ -576,11 +507,13 @@
 		85% {
 			border-color: violet;
 		}
+		95% {
+			border-color: purple;
+		}
 	}
 
 	.animate-rainbow-pulse {
-		animation: rainbow-pulse 2s infinite;
-		border-radius: 1rem;
+		animation: rainbow-pulse 5s infinite;
+		border-radius: 0.5rem;
 	}
-	/* Claude End */
 </style>

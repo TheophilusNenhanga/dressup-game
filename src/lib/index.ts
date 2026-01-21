@@ -38,7 +38,7 @@ export type Powerup = {
 	name: string;
 };
 
-export let powerups: Powerup[] = [
+export const powerups: Powerup[] = [
 	{
 		sprite:
 			'https://cdn-media.glamira.com/media/product/newgeneration/view/1/sku/21193gisu1-round/diamond/diamond-zirconia_AAAAA/stone2/diamond-zirconia_AAAAA/stone3/diamond-zirconia_AAAAA/alloycolour/yellow.jpg',
@@ -69,14 +69,14 @@ export let powerups: Powerup[] = [
 		effectTo: 'health',
 		value: 0.1,
 		rarity: 'uncommon',
-		name: 'Amulet of health'
+		name: 'Necklace of health'
 	},
 	{
 		sprite: 'https://spencediamonds.com/assets/29885-A.png',
 		effectTo: 'defence',
 		value: 0.1,
 		rarity: 'uncommon',
-		name: 'Amulet of defence'
+		name: 'Necklace of defence'
 	},
 	{
 		sprite:
@@ -84,7 +84,7 @@ export let powerups: Powerup[] = [
 		effectTo: 'attack',
 		value: 0.15,
 		rarity: 'rare',
-		name: 'Amulet of attack'
+		name: 'Necklace of attack'
 	},
 	{
 		sprite:
@@ -179,8 +179,8 @@ export function newInventory(): Array<Clothing> {
 		{
 			sprite:
 				'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTS0mNwhUWnRYBKJXxNfot5_vHy87HhptMYA&s',
-			defenceStyle: 4,
-			attackStyle: 3,
+			defenceStyle: 7,
+			attackStyle: 9,
 			for: 'head',
 			id: 1,
 			tag: [
@@ -191,7 +191,7 @@ export function newInventory(): Array<Clothing> {
 		{
 			sprite: 'https://tfashionmart.com/cdn/shop/products/bluedodgersfitted.jpg',
 			defenceStyle: 6,
-			attackStyle: 6,
+			attackStyle: 12,
 			for: 'head',
 			id: 2,
 			tag: [
@@ -204,7 +204,7 @@ export function newInventory(): Array<Clothing> {
 			sprite:
 				'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Red_Hat_logo.svg/250px-Red_Hat_logo.svg.png',
 			defenceStyle: 9,
-			attackStyle: 3,
+			attackStyle: 9,
 			for: 'head',
 			id: 3,
 			tag: [
@@ -215,7 +215,7 @@ export function newInventory(): Array<Clothing> {
 		{
 			sprite: 'https://m.media-amazon.com/images/I/51Kwn-j-8eL._AC_SL1001_.jpg',
 			defenceStyle: 6,
-			attackStyle: 6,
+			attackStyle: 15,
 			for: 'chest',
 			id: 4,
 			tag: [{ type: 'brand', value: 'dossi' }]
@@ -224,7 +224,7 @@ export function newInventory(): Array<Clothing> {
 			sprite:
 				'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQwJCmnST-pcu0vvRiqt2Uv0kPq8VHyBHMew&s',
 			defenceStyle: 4,
-			attackStyle: 3,
+			attackStyle: 10,
 			for: 'legs',
 			id: 5,
 			tag: [{ type: 'brand', value: 'dossi' }]
