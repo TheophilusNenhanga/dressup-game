@@ -240,13 +240,13 @@
 
 {#snippet player()}
 	<section class="flex w-full flex-col gap-8 p-2">
-		<h3 class="text-5xl font-bold">Player</h3>
+		<h3 class="text-4xl font-bold">Player</h3>
 		<div class="flex flex-col gap-4">
 			{@render healthBar(avatar.health, maxHealth)}
 			<p class="text-2xl">Head</p>
 			{#if avatar.head}
 				<img
-					class="h-36 w-36 {avatar.head.synergy ? 'animate-rainbow-pulse border-4' : ''}"
+					class="h-32 w-32 {avatar.head.synergy ? 'animate-rainbow-pulse border-4' : ''}"
 					src={avatar.head.sprite}
 					alt="Head"
 				/>
@@ -258,7 +258,7 @@
 			<p class="text-2xl">Chest</p>
 			{#if avatar.chest}
 				<img
-					class="h-36 w-36 {avatar.chest.synergy ? 'animate-rainbow-pulse border-4' : ''}"
+					class="h-32 w-32 {avatar.chest.synergy ? 'animate-rainbow-pulse border-4' : ''}"
 					src={avatar.chest.sprite}
 					alt="Chest"
 				/>
@@ -270,7 +270,7 @@
 			<p class="text-2xl">Legs</p>
 			{#if avatar.legs}
 				<img
-					class="h-36 w-36 {avatar.legs.synergy ? 'animate-rainbow-pulse border-4' : ''}"
+					class="h-32 w-32 {avatar.legs.synergy ? 'animate-rainbow-pulse border-4' : ''}"
 					src={avatar.legs.sprite}
 					alt="Legs"
 				/>
@@ -296,7 +296,7 @@
 	<section class="flex flex-col gap-2 rounded-md p-2">
 		<h3 class="text-4xl font-bold">Enemy</h3>
 		{@render healthBar(enemy.health, maxHealth)}
-		<img src={enemy.sprite} alt="enemy sprite" />
+		<img src={enemy.sprite} class="aspect-auto w-2/3" alt="enemy sprite" />
 		<div>
 			<h2 class="text-3xl">Enemy Stats</h2>
 			<div>
@@ -327,13 +327,13 @@
 	</button>
 {/snippet}
 
-<div class="relative m-4 flex flex-col space-y-4 px-8">
-	<p class="border-b pb-6 text-center font-mono text-5xl font-extrabold">{mode}</p>
+<div class="relative mx-4 flex flex-col space-y-4 px-8">
+	<p class="border-b text-center font-mono text-3xl font-extrabold">{mode}</p>
 	{#if mode === 'pre-encounter'}
 		<div class="flex justify-around gap-8" transition:slide>
 			{@render player()}
 			<div class="flex w-full flex-col gap-2">
-				<h2 class="text-5xl font-bold">Clothes Inventory</h2>
+				<h2 class="text-4xl font-bold">Clothes Inventory</h2>
 				<div class="flex flex-col gap-2">
 					<h3 class="text-xl font-semibold">Head Clothing</h3>
 					<div class="flex flex-wrap gap-4">
@@ -370,47 +370,41 @@
 		</div>
 	{:else if mode === 'encounter'}
 		<div class="relative flex flex-col gap-8 space-y-6" transition:slide>
-			<!-- <div
-				class="absolute inset-0 top-0 right-0 bottom-0 left-0 -z-10"
-				style="background-image:url({Background}); background-size: cover; background-position: center;"
-			></div> -->
-			<div class="flex items-center justify-between gap-6 px-8">
-				<div>
+			<div class="flex justify-between gap-6 px-8">
+				<div class="flex gap-4">
 					{@render player()}
 					<div class="flex flex-col gap-4">
 						<h3 class="my-2 text-2xl font-bold">Powerups</h3>
-						<div class="flex gap-4">
-							{#each encounterPowerups as powerup, index (index)}
-								<div class="flex flex-col items-center">
-									<button
-										onclick={() => usePowerup(powerup)}
-										class=" overflow-hidden rounded-full border-2 shadow hover:shadow-md {powerup.rarity ===
-										'common'
-											? 'border-green-500'
-											: powerup.rarity === 'uncommon'
-												? 'border-blue-500'
-												: powerup.rarity === 'rare'
-													? 'border-purple-500'
-													: 'border-gray-500'}"
-									>
-										<img class="h-24 w-24" src={powerup.sprite} alt={powerup.name} />
-									</button>
-									<p class="text-xl">{powerup.name}</p>
-									<p class="text-xl">{powerup.value * 100}% {powerup.effectTo} boost</p>
-								</div>
-							{/each}
+						<div class="flex flex-col gap-4">
+							<div class="flex gap-2">
+								{#each encounterPowerups as powerup, index (index)}
+									<div class="flex flex-col items-center">
+										<button
+											onclick={() => usePowerup(powerup)}
+											class=" overflow-hidden rounded-full border-2 shadow hover:shadow-md {powerup.rarity ===
+											'common'
+												? 'border-green-500'
+												: powerup.rarity === 'uncommon'
+													? 'border-blue-500'
+													: powerup.rarity === 'rare'
+														? 'border-purple-500'
+														: 'border-gray-500'}"
+										>
+											<img class="h-24 w-24" src={powerup.sprite} alt={powerup.name} />
+										</button>
+										<p class="text-lg">{powerup.name}</p>
+										<p class="text-lg">{powerup.value * 100}% {powerup.effectTo} boost</p>
+									</div>
+								{/each}
+							</div>
+							<button
+								onclick={() => attack(avatar, enemy)}
+								class="w-fit border px-3 py-1 text-3xl shadow hover:shadow-md">Attack</button
+							>
 						</div>
 					</div>
-
-					<div class="flex flex-col gap-4">
-						<p>Turn: {turnNumber}</p>
-						<button
-							onclick={() => attack(avatar, enemy)}
-							class="w-fit border px-3 py-1 text-3xl shadow hover:shadow-md">Attack</button
-						>
-					</div>
 				</div>
-				<p class="text-9xl font-bold">VS</p>
+				<p class="text-4xl font-bold">VS</p>
 				{@render enemyMarkup()}
 			</div>
 		</div>
